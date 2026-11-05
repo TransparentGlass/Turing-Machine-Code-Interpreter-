@@ -49,7 +49,8 @@ public class Main {
 
         // For now, just print the tokens.
         for (Token token : tokens) {
-            System.out.println(token);
+            System.out.println(token.getLiteral() + " -> " + token.getType());
+            
         }
     }
 

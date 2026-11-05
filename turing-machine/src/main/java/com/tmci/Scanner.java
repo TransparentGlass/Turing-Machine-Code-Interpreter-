@@ -88,8 +88,9 @@ public class Scanner {
 
             default:
                 if (isDigit(c) && isSymbol()) {
-                    scanSymbol();
-                } else if (isAlphaNumeric(c)) {
+                    scanSymbol();   
+                }
+                else if (isAlphaNumeric(c)) {
                     scanLabelOrKeyword();
                 } else {
                     throw new RuntimeException("Unexpected character '" + c + "' at line " + (line));
@@ -112,7 +113,7 @@ public class Scanner {
         // Check if extracted substring is a reserved keyword
         TokenType type = keywords.get(text);
         if (type == null) {
-            type = TokenType.LABEL;
+            type = text.length() == 1 ? TokenType.SYMBOL : TokenType.LABEL;
         }
 
         addToken(type, text);

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.tmci.ScannerTest" time="0.033" tests="7" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.tmci.ScannerTest" time="0.042" tests="9" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -15,7 +15,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="AU"/>
     <property name="sun.boot.library.path" value="D:\JDK\jdk-21\bin"/>
-    <property name="sun.java.command" value="C:\Users\Admin\AppData\Local\Temp\surefire12674087057153355209\surefirebooter-20261105160631385_3.jar C:\Users\Admin\AppData\Local\Temp\surefire12674087057153355209 2026-11-05T16-06-31_223-jvmRun1 surefire-20261105160631385_1tmp surefire_0-20261105160631385_2tmp"/>
+    <property name="sun.java.command" value="C:\Users\Admin\AppData\Local\Temp\surefire1221272822531769123\surefirebooter-20261105163149916_3.jar C:\Users\Admin\AppData\Local\Temp\surefire1221272822531769123 2026-11-05T16-31-49_746-jvmRun1 surefire-20261105163149916_1tmp surefire_0-20261105163149916_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="D:\Glass\CSS\3rd year\CSCC 15\TMCI\Turing-Machine-Code-Interpreter-\turing-machine\target\test-classes;D:\Glass\CSS\3rd year\CSCC 15\TMCI\Turing-Machine-Code-Interpreter-\turing-machine\target\classes;C:\Users\Admin\.m2\repository\org\junit\jupiter\junit-jupiter\5.10.2\junit-jupiter-5.10.2.jar;C:\Users\Admin\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.10.2\junit-jupiter-api-5.10.2.jar;C:\Users\Admin\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\Admin\.m2\repository\org\junit\platform\junit-platform-commons\1.10.2\junit-platform-commons-1.10.2.jar;C:\Users\Admin\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\Admin\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.10.2\junit-jupiter-params-5.10.2.jar;C:\Users\Admin\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.10.2\junit-jupiter-engine-5.10.2.jar;C:\Users\Admin\.m2\repository\org\junit\platform\junit-platform-engine\1.10.2\junit-platform-engine-1.10.2.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -30,7 +30,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\Admin\AppData\Local\Temp\surefire12674087057153355209\surefirebooter-20261105160631385_3.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\Admin\AppData\Local\Temp\surefire1221272822531769123\surefirebooter-20261105163149916_3.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="21.0.9+7-LTS-338"/>
@@ -58,28 +58,62 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="rejectsMultiCharacterTapeSymbols" classname="com.tmci.ScannerTest" time="0.002"/>
-  <testcase name="ignoresWhitespaceAndTracksSourceLines" classname="com.tmci.ScannerTest" time="0.003">
-    <system-out><![CDATA[Testing token: type=IDENTIFIER, lexeme='start', literal=start, line=1
+  <testcase name="displaysAllTokenTypesInInstruction" classname="com.tmci.ScannerTest" time="0.006">
+    <system-out><![CDATA[Testing token: type=IF, lexeme='IF', literal=IF, line=1
+Testing token: type=SYMBOL, lexeme='x', literal=x, line=1
+Testing token: type=LABEL, lexeme='label', literal=label, line=1
+Testing token: type=IF, lexeme='IF', literal=IF, line=1
+Testing token: type=RIGHT, lexeme='RIGHT', literal=RIGHT, line=1
+Testing token: type=LEFT, lexeme='LEFT', literal=LEFT, line=1
+Testing token: type=HALT, lexeme='HALT', literal=HALT, line=1
+Testing token: type=WRITE, lexeme='WRITE', literal=WRITE, line=1
+Testing token: type=READ, lexeme='READ', literal=READ, line=1
+Testing token: type=SYMBOL, lexeme='x', literal=x, line=1
+Testing token: type=EOF, lexeme='', literal=null, line=1
+]]></system-out>
+  </testcase>
+  <testcase name="scansLabelsAndSingleCharacterSymbols" classname="com.tmci.ScannerTest" time="0.003">
+    <system-out><![CDATA[Testing token: type=LABEL, lexeme='start', literal=start, line=1
+Testing token: type=SYMBOL, lexeme='A', literal=A, line=1
+Testing token: type=SYMBOL, lexeme='7', literal=7, line=1
+Testing token: type=SYMBOL, lexeme='z', literal=z, line=1
+Testing token: type=EOF, lexeme='', literal=null, line=1
+]]></system-out>
+  </testcase>
+  <testcase name="ignoresWhitespaceAndTracksSourceLines" classname="com.tmci.ScannerTest" time="0.005">
+    <system-out><![CDATA[Testing token: type=LABEL, lexeme='start', literal=start, line=1
 Testing token: type=COLON, lexeme=':', literal=null, line=1
 Testing token: type=WRITE, lexeme='WRITE', literal=WRITE, line=2
 Testing token: type=SYMBOL, lexeme='7', literal=7, line=3
 Testing token: type=EOF, lexeme='', literal=null, line=3
 ]]></system-out>
   </testcase>
-  <testcase name="scansEmptySourceAsEof" classname="com.tmci.ScannerTest" time="0.001">
-    <system-out><![CDATA[Testing token: type=EOF, lexeme='', literal=null, line=1
-]]></system-out>
-  </testcase>
-  <testcase name="rejectsUnexpectedCharacters" classname="com.tmci.ScannerTest" time="0.007"/>
-  <testcase name="allowsIdentifiersToStartWithUnderscore" classname="com.tmci.ScannerTest" time="0.002">
-    <system-out><![CDATA[Testing token: type=IDENTIFIER, lexeme='_state', literal=_state, line=1
-Testing token: type=IDENTIFIER, lexeme='state_name', literal=state_name, line=1
+  <testcase name="allowsLabelsToStartWithUnderscore" classname="com.tmci.ScannerTest" time="0.002">
+    <system-out><![CDATA[Testing token: type=LABEL, lexeme='_state', literal=_state, line=1
+Testing token: type=LABEL, lexeme='state_name', literal=state_name, line=1
 Testing token: type=SYMBOL, lexeme='_', literal=_, line=1
 Testing token: type=EOF, lexeme='', literal=null, line=1
 ]]></system-out>
   </testcase>
-  <testcase name="scansKeywordsAndPunctuation" classname="com.tmci.ScannerTest" time="0.005">
+  <testcase name="displaysLabelsOnly" classname="com.tmci.ScannerTest" time="0.002">
+    <system-out><![CDATA[Testing token: type=LABEL, lexeme='label', literal=label, line=1
+Testing token: type=LABEL, lexeme='_state', literal=_state, line=1
+Testing token: type=EOF, lexeme='', literal=null, line=1
+]]></system-out>
+  </testcase>
+  <testcase name="scansEmptySourceAsEof" classname="com.tmci.ScannerTest" time="0.002">
+    <system-out><![CDATA[Testing token: type=EOF, lexeme='', literal=null, line=1
+]]></system-out>
+  </testcase>
+  <testcase name="rejectsUnexpectedCharacters" classname="com.tmci.ScannerTest" time="0.006"/>
+  <testcase name="displaysSymbolsOnly" classname="com.tmci.ScannerTest" time="0.002">
+    <system-out><![CDATA[Testing token: type=SYMBOL, lexeme='x', literal=x, line=1
+Testing token: type=SYMBOL, lexeme='7', literal=7, line=1
+Testing token: type=SYMBOL, lexeme='_', literal=_, line=1
+Testing token: type=EOF, lexeme='', literal=null, line=1
+]]></system-out>
+  </testcase>
+  <testcase name="scansKeywordsAndPunctuation" classname="com.tmci.ScannerTest" time="0.004">
     <system-out><![CDATA[Testing token: type=HALT, lexeme='HALT', literal=HALT, line=1
 Testing token: type=IF, lexeme='IF', literal=IF, line=1
 Testing token: type=GOTO, lexeme='GOTO', literal=GOTO, line=1
@@ -89,14 +123,6 @@ Testing token: type=RIGHT, lexeme='RIGHT', literal=RIGHT, line=1
 Testing token: type=READ, lexeme='READ', literal=READ, line=1
 Testing token: type=WRITE, lexeme='WRITE', literal=WRITE, line=1
 Testing token: type=SYMBOL, lexeme='_', literal=_, line=1
-Testing token: type=EOF, lexeme='', literal=null, line=1
-]]></system-out>
-  </testcase>
-  <testcase name="scansIdentifiersAndSingleCharacterSymbols" classname="com.tmci.ScannerTest" time="0.005">
-    <system-out><![CDATA[Testing token: type=IDENTIFIER, lexeme='start', literal=start, line=1
-Testing token: type=IDENTIFIER, lexeme='A', literal=A, line=1
-Testing token: type=SYMBOL, lexeme='7', literal=7, line=1
-Testing token: type=IDENTIFIER, lexeme='z', literal=z, line=1
 Testing token: type=EOF, lexeme='', literal=null, line=1
 ]]></system-out>
   </testcase>
