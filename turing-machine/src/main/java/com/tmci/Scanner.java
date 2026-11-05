@@ -87,7 +87,7 @@ public class Scanner {
                 break;
 
             default:
-                if (isDigit(c)) {
+                if (isDigit(c) && isSymbol()) {
                     scanSymbol();
                 } else if (isAlphaNumeric(c)) {
                     scanIdentifierOrKeyword();
@@ -119,7 +119,7 @@ public class Scanner {
     }
 
     private void scanSymbol() {
-        if (!isSymbol()) {
+        if (isAlphaNumeric(peek())) {
             throw new RuntimeException("Tape symbol must be a single character at line " + line +
                     ". Got multi-character sequence starting with '" + source.substring(start, current + 1) + "'");
         }

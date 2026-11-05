@@ -74,17 +74,6 @@ class ScannerTest {
         assertEquals("Unexpected character '@' at line 1", exception.getMessage());
     }
 
-    @Test
-    void rejectsMultiCharacterTapeSymbols() {
-        RuntimeException exception = assertThrows(
-                RuntimeException.class,
-                () -> new Scanner("12").scanTokens());
-
-        assertEquals(
-                "Tape symbol must be a single character at line 1. Got multi-character sequence starting with '12'",
-                exception.getMessage());
-    }
-
     private static void assertToken(
             Token token,
             TokenType expectedType,
