@@ -97,15 +97,15 @@ class ScannerFunctionTest {
     }
 
     @Test
-    void scanIdentifierOrKeywordClassifiesKeywordsAndIdentifiers() throws Exception {
+    void scanLabelOrKeywordClassifiesKeywordsAndIdentifiers() throws Exception {
         Scanner keywordScanner = new Scanner("HALT");
-        invoke(keywordScanner, "scanIdentifierOrKeyword");
+        invoke(keywordScanner, "scanLabelOrKeyword");
         assertEquals(TokenType.HALT, getTokens(keywordScanner).get(0).getType());
 
         Scanner identifierScanner = new Scanner("label");
-        invoke(identifierScanner, "scanIdentifierOrKeyword");
+        invoke(identifierScanner, "scanLabelOrKeyword");
         Token identifier = getTokens(identifierScanner).get(0);
-        assertEquals(TokenType.IDENTIFIER, identifier.getType());
+        assertEquals(TokenType.LABEL, identifier.getType());
         assertEquals("label", identifier.getLexeme());
     }
 

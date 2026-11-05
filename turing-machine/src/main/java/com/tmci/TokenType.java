@@ -1,7 +1,7 @@
 package com.tmci;
 
 public enum TokenType {
-    IDENTIFIER, SYMBOL,
+    LABEL, SYMBOL,
 
     COLON,
 

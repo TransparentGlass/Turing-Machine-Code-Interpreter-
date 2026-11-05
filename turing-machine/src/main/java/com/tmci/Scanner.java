@@ -80,7 +80,7 @@ public class Scanner {
 
             case '_':
                 if (isAlphaNumeric(peek())) {
-                    scanIdentifierOrKeyword();
+                    scanLabelOrKeyword();
                 } else {
                     scanSymbol();
                 }
@@ -90,7 +90,7 @@ public class Scanner {
                 if (isDigit(c) && isSymbol()) {
                     scanSymbol();
                 } else if (isAlphaNumeric(c)) {
-                    scanIdentifierOrKeyword();
+                    scanLabelOrKeyword();
                 } else {
                     throw new RuntimeException("Unexpected character '" + c + "' at line " + (line));
                 }
@@ -100,7 +100,7 @@ public class Scanner {
 
     }
 
-    private void scanIdentifierOrKeyword() {
+    private void scanLabelOrKeyword() {
         // Keep advancing 'current' while alphanumeric until it hits a colon
         while (isAlphaNumeric(peek())) {
             advance();
@@ -112,7 +112,7 @@ public class Scanner {
         // Check if extracted substring is a reserved keyword
         TokenType type = keywords.get(text);
         if (type == null) {
-            type = TokenType.IDENTIFIER;
+            type = TokenType.LABEL;
         }
 
         addToken(type, text);

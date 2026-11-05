@@ -26,22 +26,22 @@ class ScannerTest {
     }
 
     @Test
-    void scansIdentifiersAndSingleCharacterSymbols() {
+    void scansLABELsAndSingleCharacterSymbols() {
         List<Token> tokens = new Scanner("start A 7 z").scanTokens();
 
-        assertToken(tokens.get(0), TokenType.IDENTIFIER, "start", "start", 1);
-        assertToken(tokens.get(1), TokenType.IDENTIFIER, "A", "A", 1);
+        assertToken(tokens.get(0), TokenType.LABEL, "start", "start", 1);
+        assertToken(tokens.get(1), TokenType.LABEL, "A", "A", 1);
         assertToken(tokens.get(2), TokenType.SYMBOL, "7", "7", 1);
-        assertToken(tokens.get(3), TokenType.IDENTIFIER, "z", "z", 1);
+        assertToken(tokens.get(3), TokenType.LABEL, "z", "z", 1);
         assertToken(tokens.get(4), TokenType.EOF, "", null, 1);
     }
 
     @Test
-    void allowsIdentifiersToStartWithUnderscore() {
+    void allowsLABELsToStartWithUnderscore() {
         List<Token> tokens = new Scanner("_state state_name _").scanTokens();
 
-        assertToken(tokens.get(0), TokenType.IDENTIFIER, "_state", "_state", 1);
-        assertToken(tokens.get(1), TokenType.IDENTIFIER, "state_name", "state_name", 1);
+        assertToken(tokens.get(0), TokenType.LABEL, "_state", "_state", 1);
+        assertToken(tokens.get(1), TokenType.LABEL, "state_name", "state_name", 1);
         assertToken(tokens.get(2), TokenType.SYMBOL, "_", "_", 1);
         assertToken(tokens.get(3), TokenType.EOF, "", null, 1);
     }
@@ -50,7 +50,7 @@ class ScannerTest {
     void ignoresWhitespaceAndTracksSourceLines() {
         List<Token> tokens = new Scanner("start\t:\r\nWRITE\n7").scanTokens();
 
-        assertToken(tokens.get(0), TokenType.IDENTIFIER, "start", "start", 1);
+        assertToken(tokens.get(0), TokenType.LABEL, "start", "start", 1);
         assertToken(tokens.get(1), TokenType.COLON, ":", null, 1);
         assertToken(tokens.get(2), TokenType.WRITE, "WRITE", "WRITE", 2);
         assertToken(tokens.get(3), TokenType.SYMBOL, "7", "7", 3);
