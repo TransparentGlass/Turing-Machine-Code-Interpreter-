@@ -69,7 +69,7 @@ public class Scanner {
 
             default:
                 //For single characters and
-                //Labels that start a number or a _
+                //Labels that start a number, alphabet, or underscore
                 if (isAlphaNumeric(c)) {
                     scanTypeToken();
                 } else{
@@ -92,17 +92,17 @@ public class Scanner {
 
         // Check if extracted substring is a reserved keyword
         TokenType type = keywords.get(text);
+        if (type != null && text.length() > 1 && peek() == ':'){
+            throw new RuntimeException(text + " is a reserved keyword at line: " + line);
+        }
         
         //Situation 1: It is a single character
         if(text.length() == 1){
             scanSymbol();
             return;
         }
-        //Situation 2: It is a label that has a name keyword
-        if (type != null && text.length() > 1 && peek() == ':'){
-            throw new RuntimeException(text + " is a reserved keyword at line: " + line);
-        }
-        // Situation 3: It isn't a keyword and it has a colon next to it
+        
+        // Situation 2: It isn't a keyword and it has a colon next to it
         if (type == null && peek() == ':') {
             addToken(TokenType.IDENTIFIER, text);
             advance(); // skip the colon

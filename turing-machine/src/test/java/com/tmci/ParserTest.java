@@ -1,6 +1,7 @@
 package com.tmci;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -95,6 +96,24 @@ class ParserTest {
         }
 
         @Test
+        void rejectsWriteWithTooManyArguments() {
+                RuntimeException exception = assertThrows(
+                                RuntimeException.class,
+                                () -> parse("WRITE 1 0"));
+
+                assertTrue(exception.getMessage().contains("Unexpected expression or command token"));
+        }
+
+        @Test
+        void rejectsConditionalWithMultiCharacterSymbol() {
+                RuntimeException exception = assertThrows(
+                                RuntimeException.class,
+                                () -> parse("IF 10 GOTO start"));
+
+                assertTrue(exception.getMessage().contains("Expected symbol after IF"));
+        }
+
+        @Test
         void rejectsConditionalWithMissingCommand() {
                 RuntimeException exception = assertThrows(
                                 RuntimeException.class,
@@ -119,6 +138,36 @@ class ParserTest {
                                 () -> parse("start:"));
 
                 assertTrue(exception.getMessage().contains("Unexpected expression or command token"));
+        }
+
+        @Test
+        void rejectsMalformedLabelWithoutIdentifier() {
+                RuntimeException exception = assertThrows(
+                                RuntimeException.class,
+                                () -> parse(": HALT"));
+
+                assertTrue(exception.getMessage().contains("Unexpected character ':'"));
+        }
+
+        @Test
+        void rejectsDuplicateLabels() {
+                RuntimeException exception = assertThrows(
+                                RuntimeException.class,
+                                () -> parse("""
+                                                start: HALT
+                                                start: HALT
+                                                """));
+
+                assertTrue(exception.getMessage().contains("Duplicate"));
+        }
+
+        @Test
+        void rejectsUndefinedGotoTarget() {
+                RuntimeException exception = assertThrows(
+                                RuntimeException.class,
+                                () -> parse("GOTO missing"));
+
+                assertTrue(exception.getMessage().contains("Undefined label"));
         }
 
         @Test
