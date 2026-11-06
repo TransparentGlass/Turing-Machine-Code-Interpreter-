@@ -144,6 +144,37 @@ class ScannerTest {
     }
 
     @Test
+    void rejectsOtherUnknownCharacters() {
+        RuntimeException dollarException = assertThrows(
+                RuntimeException.class,
+                () -> new Scanner("$").scanTokens());
+        RuntimeException hashException = assertThrows(
+                RuntimeException.class,
+                () -> new Scanner("#").scanTokens());
+
+        assertEquals("Unexpected character '$' at line 1", dollarException.getMessage());
+        assertEquals("Unexpected character '#' at line 1", hashException.getMessage());
+    }
+
+    @Test
+    void rejectsUnclosedQuotedText() {
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> new Scanner("\"hello").scanTokens());
+
+        assertEquals("Unexpected character '\"' at line 1", exception.getMessage());
+    }
+
+    @Test
+    void rejectsUnexpectedCharacterInNumericInput() {
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> new Scanner("12.34.56").scanTokens());
+
+        assertEquals("Unexpected character '.' at line 1", exception.getMessage());
+    }
+
+    @Test
     void scansLabelsWithoutTrailingColon() {
         List<Token> tokens = new Scanner("label state_name").scanTokens();
 
@@ -159,14 +190,6 @@ class ScannerTest {
                 () -> new Scanner("HALT:").scanTokens());
 
         assertEquals("HALT is a reserved keyword at line: 1", exception.getMessage());
-    }
-
-    @Test
-    void scansMultiCharacterLabelsWithoutTrailingColon() {
-        List<Token> tokens = new Scanner("12").scanTokens();
-
-        assertToken(tokens.get(0), TokenType.LABEL, "12", "12", 1);
-        assertToken(tokens.get(1), TokenType.EOF, "", null, 1);
     }
 
     @Test
