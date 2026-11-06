@@ -12,17 +12,19 @@ The scanner converts source text into tokens and tracks source line numbers.
 It currently supports:
 
 - Keywords: `IF`, `WRITE`, `LEFT`, `RIGHT`, `GOTO`, and `HALT`
-- Single-character tape symbols
-- Identifiers written with a trailing colon, such as `start_state:`
+- Single-character non-whitespace tape symbols, such as `0`, `_`, `!`, or `?`
+- Identifiers written with a trailing colon, such as `start_state:` or `a:`
 - Label tokens used as jump targets, such as `next_state`
-- Spaces, tabs, carriage returns, newlines, and blank lines
+- `NEWLINE` tokens for enforcing one instruction per line
+- Spaces, tabs, carriage returns, and blank lines
 - An `EOF` token at the end of input
 
 The scanner rejects:
 
-- Unknown characters such as `@`, `$`, `#`, or `.`
-- Reserved keywords used as identifiers, such as `HALT:`
+- Unsupported comment markers such as `#`
 - Unsupported quoted text
+- Reserved keywords used as identifiers, such as `HALT:`
+- Invalid labels that do not match `[A-Za-z][A-Za-z0-9_]*`
 
 ### Parser
 
@@ -50,7 +52,10 @@ Supported structures include:
   GOTO next_state
   ```
 
-- Empty-program detection
+- One instruction per line; multiple instructions on one line are rejected
+- Optional labels must appear before an instruction on the same line
+- Label-only lines are rejected
+- Empty and whitespace-only program detection
 - Syntax errors for missing symbols, missing commands, missing jump targets,
   invalid command ordering, and incomplete statements at end of input
 
@@ -63,6 +68,19 @@ The parser also validates:
 
 - Duplicate label declarations
 - Undefined `GOTO` targets
+- Case-sensitive label names
+- Forward jump targets after the complete program is parsed
+
+### Input rules
+
+- Commands must be uppercase.
+- Labels must match `[A-Za-z][A-Za-z0-9_]*`.
+- Labels are case-sensitive and must be unique.
+- Every `GOTO` target must be declared.
+- A symbol argument is exactly one non-whitespace character.
+- Quoted strings are not supported.
+- Comments are not supported and are rejected.
+- Leading/trailing whitespace and blank lines are ignored.
 
 Execution is not implemented yet. Runtime behavior such as step counting,
 HALT handling, tape movement, and falling past the final instruction remains
@@ -76,6 +94,18 @@ IF _ LEFT
 IF 1 RIGHT
 GOTO next_state
 next_state: HALT
+```
+
+Each instruction must be on its own line. A one-character label is valid:
+
+```text
+a: RIGHT
+```
+
+but a label without an instruction is invalid:
+
+```text
+a:
 ```
 
 ## Project structure
