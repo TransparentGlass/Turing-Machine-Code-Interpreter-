@@ -10,25 +10,23 @@ import org.junit.jupiter.api.Test;
 class ScannerTest {
 
     @Test
-    void scansKeywordsAndPunctuation() {
-        List<Token> tokens = new Scanner("HALT IF GOTO LEFT RIGHT READ WRITE _").scanTokens();
+    void scansEveryKeyword() {
+        List<Token> tokens = new Scanner("HALT IF GOTO LEFT RIGHT WRITE").scanTokens();
 
         assertToken(tokens.get(0), TokenType.HALT, "HALT", "HALT", 1);
         assertToken(tokens.get(1), TokenType.IF, "IF", "IF", 1);
         assertToken(tokens.get(2), TokenType.GOTO, "GOTO", "GOTO", 1);
         assertToken(tokens.get(3), TokenType.LEFT, "LEFT", "LEFT", 1);
         assertToken(tokens.get(4), TokenType.RIGHT, "RIGHT", "RIGHT", 1);
-        assertToken(tokens.get(5), TokenType.READ, "READ", "READ", 1);
-        assertToken(tokens.get(6), TokenType.WRITE, "WRITE", "WRITE", 1);
-        assertToken(tokens.get(7), TokenType.SYMBOL, "_", "_", 1);
-        assertToken(tokens.get(8), TokenType.EOF, "", null, 1);
+        assertToken(tokens.get(5), TokenType.WRITE, "WRITE", "WRITE", 1);
+        assertToken(tokens.get(6), TokenType.EOF, "", null, 1);
     }
 
     @Test
-    void scansLabelsAndSingleCharacterSymbols() {
+    void scansIdentifiersAndSingleCharacterSymbols() {
         List<Token> tokens = new Scanner("start: A 7 z").scanTokens();
 
-        assertToken(tokens.get(0), TokenType.LABEL, "start:", "start", 1);
+        assertToken(tokens.get(0), TokenType.IDENTIFIER, "start", "start", 1);
         assertToken(tokens.get(1), TokenType.SYMBOL, "A", "A", 1);
         assertToken(tokens.get(2), TokenType.SYMBOL, "7", "7", 1);
         assertToken(tokens.get(3), TokenType.SYMBOL, "z", "z", 1);
@@ -36,11 +34,50 @@ class ScannerTest {
     }
 
     @Test
-    void allowsLabelsToStartWithUnderscore() {
+    void distinguishesIdentifierFromLabel() {
+        List<Token> tokens = new Scanner("state: next_state").scanTokens();
+
+        assertToken(tokens.get(0), TokenType.IDENTIFIER, "state", "state", 1);
+        assertToken(tokens.get(1), TokenType.LABEL, "next_state", "next_state", 1);
+        assertToken(tokens.get(2), TokenType.EOF, "", null, 1);
+    }
+
+    @Test
+    void scansCompleteTuringMachineProgram() {
+        String source = """
+                start_state: IF 0 WRITE 1
+                IF _ LEFT
+                IF 1 RIGHT
+                GOTO next_state
+                next_state: HALT
+                """;
+
+        List<Token> tokens = new Scanner(source).scanTokens();
+
+        assertToken(tokens.get(0), TokenType.IDENTIFIER, "start_state", "start_state", 1);
+        assertToken(tokens.get(1), TokenType.IF, "IF", "IF", 1);
+        assertToken(tokens.get(2), TokenType.SYMBOL, "0", "0", 1);
+        assertToken(tokens.get(3), TokenType.WRITE, "WRITE", "WRITE", 1);
+        assertToken(tokens.get(4), TokenType.SYMBOL, "1", "1", 1);
+        assertToken(tokens.get(5), TokenType.IF, "IF", "IF", 2);
+        assertToken(tokens.get(6), TokenType.SYMBOL, "_", "_", 2);
+        assertToken(tokens.get(7), TokenType.LEFT, "LEFT", "LEFT", 2);
+        assertToken(tokens.get(8), TokenType.IF, "IF", "IF", 3);
+        assertToken(tokens.get(9), TokenType.SYMBOL, "1", "1", 3);
+        assertToken(tokens.get(10), TokenType.RIGHT, "RIGHT", "RIGHT", 3);
+        assertToken(tokens.get(11), TokenType.GOTO, "GOTO", "GOTO", 4);
+        assertToken(tokens.get(12), TokenType.LABEL, "next_state", "next_state", 4);
+        assertToken(tokens.get(13), TokenType.IDENTIFIER, "next_state", "next_state", 5);
+        assertToken(tokens.get(14), TokenType.HALT, "HALT", "HALT", 5);
+        assertToken(tokens.get(15), TokenType.EOF, "", null, 6);
+    }
+
+    @Test
+    void allowsIdentifiersToStartWithUnderscore() {
         List<Token> tokens = new Scanner("_state: state_name: _").scanTokens();
 
-        assertToken(tokens.get(0), TokenType.LABEL, "_state:", "_state", 1);
-        assertToken(tokens.get(1), TokenType.LABEL, "state_name:", "state_name", 1);
+        assertToken(tokens.get(0), TokenType.IDENTIFIER, "_state", "_state", 1);
+        assertToken(tokens.get(1), TokenType.IDENTIFIER, "state_name", "state_name", 1);
         assertToken(tokens.get(2), TokenType.SYMBOL, "_", "_", 1);
         assertToken(tokens.get(3), TokenType.EOF, "", null, 1);
     }
@@ -56,36 +93,34 @@ class ScannerTest {
     }
 
     @Test
-    void displaysLabelsOnly() {
+    void scansIdentifiersOnly() {
         List<Token> tokens = new Scanner("label: _state:").scanTokens();
 
-        assertToken(tokens.get(0), TokenType.LABEL, "label:", "label", 1);
-        assertToken(tokens.get(1), TokenType.LABEL, "_state:", "_state", 1);
+        assertToken(tokens.get(0), TokenType.IDENTIFIER, "label", "label", 1);
+        assertToken(tokens.get(1), TokenType.IDENTIFIER, "_state", "_state", 1);
         assertToken(tokens.get(2), TokenType.EOF, "", null, 1);
     }
 
     @Test
     void displaysAllTokenTypesInInstruction() {
-        List<Token> tokens = new Scanner("IF x label: IF RIGHT LEFT HALT WRITE READ x").scanTokens();
+        List<Token> tokens = new Scanner("IF x label: RIGHT LEFT HALT WRITE x").scanTokens();
 
         assertToken(tokens.get(0), TokenType.IF, "IF", "IF", 1);
         assertToken(tokens.get(1), TokenType.SYMBOL, "x", "x", 1);
-        assertToken(tokens.get(2), TokenType.LABEL, "label:", "label", 1);
-        assertToken(tokens.get(3), TokenType.IF, "IF", "IF", 1);
-        assertToken(tokens.get(4), TokenType.RIGHT, "RIGHT", "RIGHT", 1);
-        assertToken(tokens.get(5), TokenType.LEFT, "LEFT", "LEFT", 1);
-        assertToken(tokens.get(6), TokenType.HALT, "HALT", "HALT", 1);
-        assertToken(tokens.get(7), TokenType.WRITE, "WRITE", "WRITE", 1);
-        assertToken(tokens.get(8), TokenType.READ, "READ", "READ", 1);
-        assertToken(tokens.get(9), TokenType.SYMBOL, "x", "x", 1);
-        assertToken(tokens.get(10), TokenType.EOF, "", null, 1);
+        assertToken(tokens.get(2), TokenType.IDENTIFIER, "label", "label", 1);
+        assertToken(tokens.get(3), TokenType.RIGHT, "RIGHT", "RIGHT", 1);
+        assertToken(tokens.get(4), TokenType.LEFT, "LEFT", "LEFT", 1);
+        assertToken(tokens.get(5), TokenType.HALT, "HALT", "HALT", 1);
+        assertToken(tokens.get(6), TokenType.WRITE, "WRITE", "WRITE", 1);
+        assertToken(tokens.get(7), TokenType.SYMBOL, "x", "x", 1);
+        assertToken(tokens.get(8), TokenType.EOF, "", null, 1);
     }
 
     @Test
     void ignoresWhitespaceAndTracksSourceLines() {
         List<Token> tokens = new Scanner("start:\r\nWRITE\n7").scanTokens();
 
-        assertToken(tokens.get(0), TokenType.LABEL, "start:", "start", 1);
+        assertToken(tokens.get(0), TokenType.IDENTIFIER, "start", "start", 1);
         assertToken(tokens.get(1), TokenType.WRITE, "WRITE", "WRITE", 2);
         assertToken(tokens.get(2), TokenType.SYMBOL, "7", "7", 3);
         assertToken(tokens.get(3), TokenType.EOF, "", null, 3);
@@ -109,12 +144,39 @@ class ScannerTest {
     }
 
     @Test
-    void rejectsLabelsWithoutTrailingColon() {
+    void scansLabelsWithoutTrailingColon() {
+        List<Token> tokens = new Scanner("label state_name").scanTokens();
+
+        assertToken(tokens.get(0), TokenType.LABEL, "label", "label", 1);
+        assertToken(tokens.get(1), TokenType.LABEL, "state_name", "state_name", 1);
+        assertToken(tokens.get(2), TokenType.EOF, "", null, 1);
+    }
+
+    @Test
+    void rejectsReservedKeywordsAsLabels() {
         RuntimeException exception = assertThrows(
                 RuntimeException.class,
-                () -> new Scanner("label").scanTokens());
+                () -> new Scanner("HALT:").scanTokens());
 
-        assertEquals("Label requires ':' to be defined at line: 1", exception.getMessage());
+        assertEquals("HALT is a reserved keyword at line: 1", exception.getMessage());
+    }
+
+    @Test
+    void scansMultiCharacterLabelsWithoutTrailingColon() {
+        List<Token> tokens = new Scanner("12").scanTokens();
+
+        assertToken(tokens.get(0), TokenType.LABEL, "12", "12", 1);
+        assertToken(tokens.get(1), TokenType.EOF, "", null, 1);
+    }
+
+    @Test
+    void tracksLinesForTokensAfterNewlines() {
+        List<Token> tokens = new Scanner("first:\nWRITE\n7").scanTokens();
+
+        assertToken(tokens.get(0), TokenType.IDENTIFIER, "first", "first", 1);
+        assertToken(tokens.get(1), TokenType.WRITE, "WRITE", "WRITE", 2);
+        assertToken(tokens.get(2), TokenType.SYMBOL, "7", "7", 3);
+        assertToken(tokens.get(3), TokenType.EOF, "", null, 3);
     }
 
     private static void assertToken(
@@ -123,12 +185,6 @@ class ScannerTest {
             String expectedLexeme,
             Object expectedLiteral,
             int expectedLine) {
-        System.out.printf(
-                "Testing token: type=%s, lexeme='%s', literal=%s, line=%d%n",
-                token.getType(),
-                token.getLexeme(),
-                token.getLiteral(),
-                token.getLine());
         assertEquals(expectedType, token.getType());
         assertEquals(expectedLexeme, token.getLexeme());
         assertEquals(expectedLiteral, token.getLiteral());

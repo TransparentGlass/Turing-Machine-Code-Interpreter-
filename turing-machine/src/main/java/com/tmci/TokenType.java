@@ -1,16 +1,16 @@
 package com.tmci;
 
 public enum TokenType {
-    LABEL, SYMBOL,
+    LABEL, SYMBOL, IDENTIFIER,
 
     //Condition
-    IF, GOTO,
+    IF,
 
     // movement
     LEFT, RIGHT,
 
     // Action
-    WRITE, READ, HALT,
+    WRITE, HALT, GOTO,
 
     //END OF FILE
     EOF

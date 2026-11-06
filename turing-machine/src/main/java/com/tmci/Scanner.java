@@ -27,7 +27,6 @@ public class Scanner {
         keywords.put("GOTO", TokenType.GOTO);
         keywords.put("LEFT", TokenType.LEFT);
         keywords.put("RIGHT", TokenType.RIGHT);
-        keywords.put("READ", TokenType.READ);
         keywords.put("WRITE", TokenType.WRITE);
     }
 
@@ -52,11 +51,6 @@ public class Scanner {
         return source.charAt(current);
     }
 
-    // Overloading addToken
-    private void addToken(TokenType type) {
-        addToken(type, null);
-    }
-
     private void addToken(TokenType type, Object literal) {
         String text = source.substring(start, current);
         tokens.add(new Token(type, text, literal, line));
@@ -74,11 +68,11 @@ public class Scanner {
                 break;
 
             default:
-                if (isDigit(c) && isSymbol()) {
-                    scanSymbol();
-                } else if (isAlphaNumeric(c)) {
-                    scanLabelOrKeyword();
-                } else {
+                //For single characters and
+                //Labels that start a number or a _
+                if (isAlphaNumeric(c)) {
+                    scanTypeToken();
+                } else{
                     throw new RuntimeException("Unexpected character '" + c + "' at line " + (line));
                 }
                 break;
@@ -87,44 +81,43 @@ public class Scanner {
 
     }
 
-    private void scanLabelOrKeyword() {
-        // Keep advancing 'current' while alphanumeric until it hits a colon
+    private void scanTypeToken() {
+        // Keep advancing 'current' while alphanumeric until it hits a colon or a space
         while (isAlphaNumeric(peek())) {
             advance();
         }
 
         // 1-Step Extraction using String.substring()
         String text = source.substring(start, current); // e.g., "start:"
+
         // Check if extracted substring is a reserved keyword
         TokenType type = keywords.get(text);
-        if (peek() != ':') {
-
-            // Situation 1: it isn't a label nor a keyword and its length is 1
-            if (type == null && text.length() == 1) {
-                type = TokenType.SYMBOL;
-
-                // Situation 2: It isn't a label nor a keyword and its length is more than 1
-            } else if (text.length() > 1 && type == null) {
-                throw new RuntimeException("Label requires ':' to be defined at line: " + line);
-            }
-
-            addToken(type, text);
-        } else {
-            // Situation 3: It isn't a keyword and it has a colon next to it
-            if (type == null) {
-                advance(); // consume the ':'
-                addToken(TokenType.LABEL, text);
-                // Situation 4: It is a keyword
-            } else {
-                throw new RuntimeException(text + " is a reserved keyword at line: " + line);
-            }
-
+        
+        //Situation 1: It is a single character
+        if(text.length() == 1){
+            scanSymbol();
+            return;
+        }
+        //Situation 2: It is a label that has a name keyword
+        if (type != null && text.length() > 1 && peek() == ':'){
+            throw new RuntimeException(text + " is a reserved keyword at line: " + line);
+        }
+        // Situation 3: It isn't a keyword and it has a colon next to it
+        if (type == null && peek() == ':') {
+            addToken(TokenType.IDENTIFIER, text);
+            advance(); // skip the colon
+            return;  
+        }
+        // Situation 3: It isn't a label nor a keyword and its length is more than 1 
+        if (text.length() > 1 && type == null) {
+            addToken(TokenType.LABEL, text);
+            return;
         }
 
+        addToken(type, text);
     }
 
     private void scanSymbol() {
-        // Single character confirmed (followed by space, newline, or EOF)
         String text = source.substring(start, current);
         addToken(TokenType.SYMBOL, text);
     }
@@ -144,10 +137,5 @@ public class Scanner {
 
     private boolean isAtEnd() {
         return current >= source.length();
-    }
-
-    private boolean isSymbol() {
-        // if the next char is a space, return true
-        return !isAlphaNumeric(peek());
     }
 }

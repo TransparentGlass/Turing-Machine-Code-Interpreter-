@@ -97,14 +97,14 @@ class ScannerFunctionTest {
     @Test
     void scanLabelOrKeywordClassifiesKeywordsAndIdentifiers() throws Exception {
         Scanner keywordScanner = new Scanner("HALT");
-        invoke(keywordScanner, "scanLabelOrKeyword");
+        invoke(keywordScanner, "scanTypeToken");
         assertEquals(TokenType.HALT, getTokens(keywordScanner).get(0).getType());
 
-        Scanner identifierScanner = new Scanner("label:");
-        invoke(identifierScanner, "scanLabelOrKeyword");
+        Scanner identifierScanner = new Scanner("identifier:");
+        invoke(identifierScanner, "scanTypeToken");
         Token identifier = getTokens(identifierScanner).get(0);
-        assertEquals(TokenType.LABEL, identifier.getType());
-        assertEquals("label:", identifier.getLexeme());
+        assertEquals(TokenType.IDENTIFIER, identifier.getType());
+        assertEquals("identifier", identifier.getLexeme());
     }
 
     @Test
@@ -124,7 +124,7 @@ class ScannerFunctionTest {
         Scanner scanner = new Scanner("IF:");
 
         InvocationTargetException exception = assertThrows(InvocationTargetException.class,
-                () -> invoke(scanner, "scanLabelOrKeyword"));
+                () -> invoke(scanner, "scanTypeToken"));
 
         assertEquals("IF is a reserved keyword at line: 1", exception.getCause().getMessage());
     }
