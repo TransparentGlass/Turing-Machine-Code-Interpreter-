@@ -90,8 +90,11 @@ class ScannerFunctionTest {
 
         invoke(scanner, "scanToken");
 
+        List<Token> tokens = getTokens(scanner);
+        assertEquals(1, tokens.size());
+        assertEquals(TokenType.NEWLINE, tokens.get(0).getType());
+        assertEquals("\n", tokens.get(0).getLexeme());
         assertEquals(2, ((Integer) getField(scanner, "line")).intValue());
-        assertTrue(getTokens(scanner).isEmpty());
     }
 
     @Test
@@ -126,7 +129,7 @@ class ScannerFunctionTest {
         InvocationTargetException exception = assertThrows(InvocationTargetException.class,
                 () -> invoke(scanner, "scanTypeToken"));
 
-        assertEquals("IF is a reserved keyword at line: 1", exception.getCause().getMessage());
+        assertEquals("IF is a reserved keyword (at line: 1)", exception.getCause().getMessage());
     }
 
     @Test

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static com.tmci.TokenType.*;
 
@@ -69,11 +70,11 @@ public class Scanner {
                 break;
 
             default:
-                //For single characters and
-                //Labels that start a number, alphabet, or underscore
+                // For single characters and
+                // Labels that start a number, alphabet, or underscore
                 if (isAlphaNumeric(c)) {
                     scanTypeToken();
-                } else{
+                } else {
                     throw new RuntimeException("Unexpected character '" + c + "' at line " + (line));
                 }
                 break;
@@ -83,7 +84,7 @@ public class Scanner {
     }
 
     private void scanTypeToken() {
-        // Keep advancing 'current' while alphanumeric until it hits a colon or a space
+        // Keep advancing 'current' while alphanumeric until it hits a colon
         while (isAlphaNumeric(peek())) {
             advance();
         }
@@ -93,23 +94,31 @@ public class Scanner {
 
         // Check if extracted substring is a reserved keyword
         TokenType type = keywords.get(text);
-        if (type != null && text.length() > 1 && peek() == ':'){
-            throw new RuntimeException(text + " is a reserved keyword at line: " + line);
+        if (type != null && text.length() > 1 && peek() == ':') {
+            throw new RuntimeException(text + " is a reserved keyword (at line: " + line + ")");
         }
-        
-        //Situation 1: It is a single character
-        if(text.length() == 1){
+
+        // Situation 1: It is a single character
+        if (text.length() == 1) {
             scanSymbol();
             return;
         }
+
         
+        boolean isValidLabel = Pattern.matches("[A-Za-z][A-Za-z0-9_]*", text);
+        if (!isValidLabel) {
+                throw new RuntimeException(
+                        text + " is an invalid label. Must start with an alphabet with no special characters (at line: "
+                                + line + " )");
+            }
+
         // Situation 2: It isn't a keyword and it has a colon next to it
-        if (type == null && peek() == ':') {
+        if (type == null && peek() == ':') {  
             addToken(TokenType.IDENTIFIER, text);
             advance(); // skip the colon
-            return;  
+            return;
         }
-        // Situation 3: It isn't a label nor a keyword and its length is more than 1 
+        // Situation 3: It isn't a label nor a keyword and its length is more than 1
         if (text.length() > 1 && type == null) {
             addToken(TokenType.LABEL, text);
             return;
@@ -132,6 +141,7 @@ public class Scanner {
     }
 
     private boolean isAlpha(char c) {
+
         return (c >= 'a' && c <= 'z') ||
                 (c >= 'A' && c <= 'Z') || (c == '_');
     }

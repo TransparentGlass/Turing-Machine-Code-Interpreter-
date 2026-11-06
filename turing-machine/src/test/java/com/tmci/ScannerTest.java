@@ -59,27 +59,33 @@ class ScannerTest {
         assertToken(tokens.get(2), TokenType.SYMBOL, "0", "0", 1);
         assertToken(tokens.get(3), TokenType.WRITE, "WRITE", "WRITE", 1);
         assertToken(tokens.get(4), TokenType.SYMBOL, "1", "1", 1);
-        assertToken(tokens.get(5), TokenType.IF, "IF", "IF", 2);
-        assertToken(tokens.get(6), TokenType.SYMBOL, "_", "_", 2);
-        assertToken(tokens.get(7), TokenType.LEFT, "LEFT", "LEFT", 2);
-        assertToken(tokens.get(8), TokenType.IF, "IF", "IF", 3);
-        assertToken(tokens.get(9), TokenType.SYMBOL, "1", "1", 3);
-        assertToken(tokens.get(10), TokenType.RIGHT, "RIGHT", "RIGHT", 3);
-        assertToken(tokens.get(11), TokenType.GOTO, "GOTO", "GOTO", 4);
-        assertToken(tokens.get(12), TokenType.LABEL, "next_state", "next_state", 4);
-        assertToken(tokens.get(13), TokenType.IDENTIFIER, "next_state", "next_state", 5);
-        assertToken(tokens.get(14), TokenType.HALT, "HALT", "HALT", 5);
-        assertToken(tokens.get(15), TokenType.EOF, "", null, 6);
+        assertToken(tokens.get(5), TokenType.NEWLINE, "\n", null, 2);
+        assertToken(tokens.get(6), TokenType.IF, "IF", "IF", 2);
+        assertToken(tokens.get(7), TokenType.SYMBOL, "_", "_", 2);
+        assertToken(tokens.get(8), TokenType.LEFT, "LEFT", "LEFT", 2);
+        assertToken(tokens.get(9), TokenType.NEWLINE, "\n", null, 3);
+        assertToken(tokens.get(10), TokenType.IF, "IF", "IF", 3);
+        assertToken(tokens.get(11), TokenType.SYMBOL, "1", "1", 3);
+        assertToken(tokens.get(12), TokenType.RIGHT, "RIGHT", "RIGHT", 3);
+        assertToken(tokens.get(13), TokenType.NEWLINE, "\n", null, 4);
+        assertToken(tokens.get(14), TokenType.GOTO, "GOTO", "GOTO", 4);
+        assertToken(tokens.get(15), TokenType.LABEL, "next_state", "next_state", 4);
+        assertToken(tokens.get(16), TokenType.NEWLINE, "\n", null, 5);
+        assertToken(tokens.get(17), TokenType.IDENTIFIER, "next_state", "next_state", 5);
+        assertToken(tokens.get(18), TokenType.HALT, "HALT", "HALT", 5);
+        assertToken(tokens.get(19), TokenType.NEWLINE, "\n", null, 6);
+        assertToken(tokens.get(20), TokenType.EOF, "", null, 6);
     }
 
     @Test
-    void allowsIdentifiersToStartWithUnderscore() {
-        List<Token> tokens = new Scanner("_state: state_name: _").scanTokens();
+    void rejectsIdentifiersStartingWithUnderscore() {
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> new Scanner("_state:").scanTokens());
 
-        assertToken(tokens.get(0), TokenType.IDENTIFIER, "_state", "_state", 1);
-        assertToken(tokens.get(1), TokenType.IDENTIFIER, "state_name", "state_name", 1);
-        assertToken(tokens.get(2), TokenType.SYMBOL, "_", "_", 1);
-        assertToken(tokens.get(3), TokenType.EOF, "", null, 1);
+        assertEquals(
+                "_state is an invalid label. Must start with an alphabet with no special characters (at line: 1 )",
+                exception.getMessage());
     }
 
     @Test
@@ -94,10 +100,10 @@ class ScannerTest {
 
     @Test
     void scansIdentifiersOnly() {
-        List<Token> tokens = new Scanner("label: _state:").scanTokens();
+        List<Token> tokens = new Scanner("label: state_name:").scanTokens();
 
         assertToken(tokens.get(0), TokenType.IDENTIFIER, "label", "label", 1);
-        assertToken(tokens.get(1), TokenType.IDENTIFIER, "_state", "_state", 1);
+        assertToken(tokens.get(1), TokenType.IDENTIFIER, "state_name", "state_name", 1);
         assertToken(tokens.get(2), TokenType.EOF, "", null, 1);
     }
 
@@ -121,9 +127,11 @@ class ScannerTest {
         List<Token> tokens = new Scanner("start:\r\nWRITE\n7").scanTokens();
 
         assertToken(tokens.get(0), TokenType.IDENTIFIER, "start", "start", 1);
-        assertToken(tokens.get(1), TokenType.WRITE, "WRITE", "WRITE", 2);
-        assertToken(tokens.get(2), TokenType.SYMBOL, "7", "7", 3);
-        assertToken(tokens.get(3), TokenType.EOF, "", null, 3);
+        assertToken(tokens.get(1), TokenType.NEWLINE, "\n", null, 2);
+        assertToken(tokens.get(2), TokenType.WRITE, "WRITE", "WRITE", 2);
+        assertToken(tokens.get(3), TokenType.NEWLINE, "\n", null, 3);
+        assertToken(tokens.get(4), TokenType.SYMBOL, "7", "7", 3);
+        assertToken(tokens.get(5), TokenType.EOF, "", null, 3);
     }
 
     @Test
@@ -171,7 +179,9 @@ class ScannerTest {
                 RuntimeException.class,
                 () -> new Scanner("12.34.56").scanTokens());
 
-        assertEquals("Unexpected character '.' at line 1", exception.getMessage());
+        assertEquals(
+                "12 is an invalid label. Must start with an alphabet with no special characters (at line: 1 )",
+                exception.getMessage());
     }
 
     @Test
@@ -189,7 +199,7 @@ class ScannerTest {
                 RuntimeException.class,
                 () -> new Scanner("HALT:").scanTokens());
 
-        assertEquals("HALT is a reserved keyword at line: 1", exception.getMessage());
+        assertEquals("HALT is a reserved keyword (at line: 1)", exception.getMessage());
     }
 
     @Test
@@ -197,9 +207,11 @@ class ScannerTest {
         List<Token> tokens = new Scanner("first:\nWRITE\n7").scanTokens();
 
         assertToken(tokens.get(0), TokenType.IDENTIFIER, "first", "first", 1);
-        assertToken(tokens.get(1), TokenType.WRITE, "WRITE", "WRITE", 2);
-        assertToken(tokens.get(2), TokenType.SYMBOL, "7", "7", 3);
-        assertToken(tokens.get(3), TokenType.EOF, "", null, 3);
+        assertToken(tokens.get(1), TokenType.NEWLINE, "\n", null, 2);
+        assertToken(tokens.get(2), TokenType.WRITE, "WRITE", "WRITE", 2);
+        assertToken(tokens.get(3), TokenType.NEWLINE, "\n", null, 3);
+        assertToken(tokens.get(4), TokenType.SYMBOL, "7", "7", 3);
+        assertToken(tokens.get(5), TokenType.EOF, "", null, 3);
     }
 
     private static void assertToken(

@@ -125,7 +125,7 @@ class ParserTest {
         void rejectsConditionalWithMultiCharacterSymbol() {
                 RuntimeException exception = assertThrows(
                                 RuntimeException.class,
-                                () -> parse("IF 10 GOTO start"));
+                                () -> parse("IF ab GOTO start"));
 
                 assertTrue(exception.getMessage().contains("Expected symbol after IF"));
         }
