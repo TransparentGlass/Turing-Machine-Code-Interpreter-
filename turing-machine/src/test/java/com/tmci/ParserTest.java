@@ -55,6 +55,15 @@ class ParserTest {
         }
 
         @Test
+        void rejectsWhitespaceOnlyProgram() {
+                RuntimeException exception = assertThrows(
+                                RuntimeException.class,
+                                () -> parse("  \n\t  \n"));
+
+                assertEquals("Program is empty", exception.getMessage());
+        }
+
+        @Test
         void acceptsLeadingTrailingWhitespaceAndBlankLines() {
                 ProgramNode program = assertInstanceOf(
                                 ProgramNode.class,

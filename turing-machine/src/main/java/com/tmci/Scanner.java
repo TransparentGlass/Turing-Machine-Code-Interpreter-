@@ -74,8 +74,10 @@ public class Scanner {
                 // Labels that start a number, alphabet, or underscore
                 if (isAlphaNumeric(c)) {
                     scanTypeToken();
-                } else {
+                } else if (c == ':' || c == '"' || c == '#') {
                     throw new RuntimeException("Unexpected character '" + c + "' at line " + (line));
+                } else {
+                    scanSymbol();
                 }
                 break;
 
@@ -96,6 +98,13 @@ public class Scanner {
         TokenType type = keywords.get(text);
         if (type != null && text.length() > 1 && peek() == ':') {
             throw new RuntimeException(text + " is a reserved keyword (at line: " + line + ")");
+        }
+
+        // A one-character name followed by ':' is a valid identifier.
+        if (text.length() == 1 && peek() == ':') {
+            addToken(TokenType.IDENTIFIER, text);
+            advance();
+            return;
         }
 
         // Situation 1: It is a single character

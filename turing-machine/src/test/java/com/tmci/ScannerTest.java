@@ -43,6 +43,24 @@ class ScannerTest {
     }
 
     @Test
+    void scansSingleCharacterIdentifier() {
+        List<Token> tokens = new Scanner("a:").scanTokens();
+
+        assertToken(tokens.get(0), TokenType.IDENTIFIER, "a", "a", 1);
+        assertToken(tokens.get(1), TokenType.EOF, "", null, 1);
+    }
+
+    @Test
+    void scansNonWhitespaceSymbols() {
+        List<Token> tokens = new Scanner("! ? .").scanTokens();
+
+        assertToken(tokens.get(0), TokenType.SYMBOL, "!", "!", 1);
+        assertToken(tokens.get(1), TokenType.SYMBOL, "?", "?", 1);
+        assertToken(tokens.get(2), TokenType.SYMBOL, ".", ".", 1);
+        assertToken(tokens.get(3), TokenType.EOF, "", null, 1);
+    }
+
+    @Test
     void scansCompleteTuringMachineProgram() {
         String source = """
                 start_state: IF 0 WRITE 1
@@ -143,25 +161,21 @@ class ScannerTest {
     }
 
     @Test
-    void rejectsUnexpectedCharacters() {
+    void rejectsUnsupportedCommentMarker() {
         RuntimeException exception = assertThrows(
-                RuntimeException.class,
-                () -> new Scanner("@").scanTokens());
-
-        assertEquals("Unexpected character '@' at line 1", exception.getMessage());
-    }
-
-    @Test
-    void rejectsOtherUnknownCharacters() {
-        RuntimeException dollarException = assertThrows(
-                RuntimeException.class,
-                () -> new Scanner("$").scanTokens());
-        RuntimeException hashException = assertThrows(
                 RuntimeException.class,
                 () -> new Scanner("#").scanTokens());
 
-        assertEquals("Unexpected character '$' at line 1", dollarException.getMessage());
-        assertEquals("Unexpected character '#' at line 1", hashException.getMessage());
+        assertEquals("Unexpected character '#' at line 1", exception.getMessage());
+    }
+
+    @Test
+    void acceptsPunctuationAsSingleCharacterSymbols() {
+        List<Token> tokens = new Scanner("@ $").scanTokens();
+
+        assertToken(tokens.get(0), TokenType.SYMBOL, "@", "@", 1);
+        assertToken(tokens.get(1), TokenType.SYMBOL, "$", "$", 1);
+        assertToken(tokens.get(2), TokenType.EOF, "", null, 1);
     }
 
     @Test
@@ -174,10 +188,10 @@ class ScannerTest {
     }
 
     @Test
-    void rejectsUnexpectedCharacterInNumericInput() {
+    void rejectsMalformedNumericToken() {
         RuntimeException exception = assertThrows(
                 RuntimeException.class,
-                () -> new Scanner("12.34.56").scanTokens());
+                () -> new Scanner("12").scanTokens());
 
         assertEquals(
                 "12 is an invalid label. Must start with an alphabet with no special characters (at line: 1 )",
