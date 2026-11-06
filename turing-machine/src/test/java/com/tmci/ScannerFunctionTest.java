@@ -2,7 +2,6 @@ package com.tmci;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -51,12 +50,10 @@ class ScannerFunctionTest {
     @Test
     void addTokenWithoutLiteralUsesNullLiteral() throws Exception {
         Scanner scanner = new Scanner(":");
-        invoke(scanner, "scanToken");
+        InvocationTargetException exception = assertThrows(InvocationTargetException.class,
+                () -> invoke(scanner, "scanToken"));
 
-        List<Token> tokens = getTokens(scanner);
-        assertEquals(1, tokens.size());
-        assertEquals(TokenType.COLON, tokens.get(0).getType());
-        assertNull(tokens.get(0).getLiteral());
+        assertEquals("Unexpected character ':' at line 1", exception.getCause().getMessage());
     }
 
     @Test
@@ -103,11 +100,11 @@ class ScannerFunctionTest {
         invoke(keywordScanner, "scanLabelOrKeyword");
         assertEquals(TokenType.HALT, getTokens(keywordScanner).get(0).getType());
 
-        Scanner identifierScanner = new Scanner("label");
+        Scanner identifierScanner = new Scanner("label:");
         invoke(identifierScanner, "scanLabelOrKeyword");
         Token identifier = getTokens(identifierScanner).get(0);
         assertEquals(TokenType.LABEL, identifier.getType());
-        assertEquals("label", identifier.getLexeme());
+        assertEquals("label:", identifier.getLexeme());
     }
 
     @Test
@@ -122,25 +119,19 @@ class ScannerFunctionTest {
         assertEquals("7", token.getLexeme());
     }
 
-    // @Test
-    // void scanSymbolRejectsMultiCharacterSymbol() throws Exception {
-    // Scanner scanner = new Scanner("12");
+    @Test
+    void isLabelAReservedKeyword() throws Exception {
+        Scanner scanner = new Scanner("IF:");
 
-    // invoke(scanner, "advance");
+        InvocationTargetException exception = assertThrows(InvocationTargetException.class,
+                () -> invoke(scanner, "scanLabelOrKeyword"));
 
-    // InvocationTargetException exception = assertThrows(
-    // InvocationTargetException.class,
-    // () -> invoke(scanner, "scanSymbol"));
-
-    // assertEquals(
-    // "Tape symbol must be a single character at line 1. Got multi-character
-    // sequence starting with '12'",
-    // exception.getCause().getMessage());
-    // }
+        assertEquals("IF is a reserved keyword at line: 1", exception.getCause().getMessage());
+    }
 
     @Test
     void isAlphaNumericRecognizesLettersDigitsAndUnderscore() throws Exception {
-        Scanner scanner = new Scanner("");
+        Scanner scanner = new Scanner("A 7 _ -");
 
         assertTrue(((Boolean) invoke(scanner, "isAlphaNumeric", char.class, 'A')).booleanValue());
         assertTrue(((Boolean) invoke(scanner, "isAlphaNumeric", char.class, '7')).booleanValue());
@@ -150,7 +141,7 @@ class ScannerFunctionTest {
 
     @Test
     void isDigitRecognizesOnlyAsciiDigits() throws Exception {
-        Scanner scanner = new Scanner("");
+        Scanner scanner = new Scanner("0 9 a 9");
 
         assertTrue(((Boolean) invoke(scanner, "isDigit", char.class, '0')).booleanValue());
         assertTrue(((Boolean) invoke(scanner, "isDigit", char.class, '9')).booleanValue());
@@ -160,7 +151,7 @@ class ScannerFunctionTest {
 
     @Test
     void isAlphaRecognizesLettersAndUnderscore() throws Exception {
-        Scanner scanner = new Scanner("");
+        Scanner scanner = new Scanner("a Z _ 3");
 
         assertTrue(((Boolean) invoke(scanner, "isAlpha", char.class, 'a')).booleanValue());
         assertTrue(((Boolean) invoke(scanner, "isAlpha", char.class, 'Z')).booleanValue());

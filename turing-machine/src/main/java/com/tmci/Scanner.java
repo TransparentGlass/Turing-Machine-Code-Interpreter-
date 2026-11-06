@@ -73,15 +73,6 @@ public class Scanner {
                 line++;
                 break;
 
-            case ':':
-                if (isAlphaNumeric(peek())) {
-                    throw new RuntimeException("Unexpected character '" + c + "' at line " + (line));
-                } else {
-                    addToken(TokenType.COLON);
-                }
-
-                break;
-
             default:
                 if (isDigit(c) && isSymbol()) {
                     scanSymbol();
@@ -103,15 +94,33 @@ public class Scanner {
         }
 
         // 1-Step Extraction using String.substring()
-        String text = source.substring(start, current);
-
+        String text = source.substring(start, current); // e.g., "start:"
         // Check if extracted substring is a reserved keyword
         TokenType type = keywords.get(text);
-        if (type == null) {
-            type = text.length() == 1 ? TokenType.SYMBOL : TokenType.LABEL;
+        if (peek() != ':') {
+
+            // Situation 1: it isn't a label nor a keyword and its length is 1
+            if (type == null && text.length() == 1) {
+                type = TokenType.SYMBOL;
+
+                // Situation 2: It isn't a label nor a keyword and its length is more than 1
+            } else if (text.length() > 1 && type == null) {
+                throw new RuntimeException("Label requires ':' to be defined at line: " + line);
+            }
+
+            addToken(type, text);
+        } else {
+            // Situation 3: It isn't a keyword and it has a colon next to it
+            if (type == null) {
+                advance(); // consume the ':'
+                addToken(TokenType.LABEL, text);
+                // Situation 4: It is a keyword
+            } else {
+                throw new RuntimeException(text + " is a reserved keyword at line: " + line);
+            }
+
         }
 
-        addToken(type, text);
     }
 
     private void scanSymbol() {
