@@ -55,8 +55,18 @@ Supported structures include:
   invalid command ordering, and incomplete statements at end of input
 
 The parser currently produces AST nodes for programs, label declarations,
-conditionals, and commands. Semantic validation such as duplicate-label
-detection and undefined jump-target detection still needs to be completed.
+conditionals, and commands. Every AST node records its source line through
+`ASTNode#getLine()`, allowing validation errors to identify the relevant
+instruction.
+
+The parser also validates:
+
+- Duplicate label declarations
+- Undefined `GOTO` targets
+
+Execution is not implemented yet. Runtime behavior such as step counting,
+HALT handling, tape movement, and falling past the final instruction remains
+part of the execution stage.
 
 ## Example program
 
@@ -107,3 +117,8 @@ Run parser tests only:
 ```bash
 mvn -Dtest=ParserTest test
 ```
+
+The test suite includes scanner and parser edge cases for empty programs,
+invalid characters, malformed symbols, missing arguments, invalid command
+ordering, label-only statements, duplicate labels, and undefined jump
+targets.
