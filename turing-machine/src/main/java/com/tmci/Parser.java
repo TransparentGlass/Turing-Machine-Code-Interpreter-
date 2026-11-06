@@ -1,5 +1,6 @@
 package com.tmci;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,7 +25,19 @@ public class Parser {
         }
 
         while (!isAtEnd()) {
+            if(match(TokenType.NEWLINE)) { continue; }
             statements.add(parse_statements());
+
+
+            // Check if multiple instruction lines
+            if (!isAtEnd() && !match(TokenType.NEWLINE)) {
+            Token offingToken = peek();
+            throw new RuntimeException(
+                "Multiple instructions on a single line are not allowed. Found '" 
+                + offingToken.getLexeme() + "' after instruction. Line: " + 
+                offingToken.getLine()
+            );
+        }
         }
 
         // check for duplicate labels
@@ -102,23 +115,22 @@ public class Parser {
 
     // command -> WRITE SYMBOL| LEFT | RIGHT | HALT | GOTO LABEL
     private CommandNode parse_command() {
+        int commandLine = peek().getLine();
         if (match(TokenType.WRITE)) {
-            int commandLine = previous().getLine();
             Token symbolToken = consume(TokenType.SYMBOL, "Expected symbol next to WRITE");
             String symbol = symbolToken.getLexeme();
             return new CommandNode("WRITE", symbol, null, commandLine);
         }
         if (match(TokenType.LEFT)) {
-            return new CommandNode("LEFT", null, null, previous().getLine());
+            return new CommandNode("LEFT", null, null, commandLine);
         }
         if (match(TokenType.RIGHT)) {
-            return new CommandNode("RIGHT", null, null, previous().getLine());
+            return new CommandNode("RIGHT", null, null, commandLine);
         }
         if (match(TokenType.HALT)) {
-            return new CommandNode("HALT", null, null, previous().getLine());
+            return new CommandNode("HALT", null, null, commandLine);
         }
         if (match(TokenType.GOTO)) {
-            int commandLine = previous().getLine();
             Token labelToken = consume(TokenType.LABEL, "Expected a label next to GOTO");
             return new CommandNode("GOTO", null, labelToken.getLexeme(), commandLine);
         }
@@ -166,6 +178,13 @@ public class Parser {
             return false;
         return peek().getType() == type;
     }
+
+    // private boolean checkNext(TokenType type){
+    //     if(isAtEnd()){
+    //         return false;
+    //     } 
+    //     return tokens.get(current + 1).getType() == type;
+    // }
 
     private Token advance() {
         if (!isAtEnd())

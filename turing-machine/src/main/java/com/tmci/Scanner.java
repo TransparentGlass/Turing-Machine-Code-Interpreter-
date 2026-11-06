@@ -65,6 +65,7 @@ public class Scanner {
                 break;
             case '\n':
                 line++;
+                addToken(TokenType.NEWLINE, null);
                 break;
 
             default:

@@ -100,7 +100,25 @@ class ParserTest {
                                 RuntimeException.class,
                                 () -> parse("WRITE 1 0"));
 
-                assertTrue(exception.getMessage().contains("Unexpected expression or command token"));
+                assertTrue(exception.getMessage().contains("Multiple instructions on a single line are not allowed"));
+        }
+
+        @Test
+        void rejectsMultipleCommandsOnOneLine() {
+                RuntimeException exception = assertThrows(
+                                RuntimeException.class,
+                                () -> parse("RIGHT LEFT"));
+
+                assertTrue(exception.getMessage().contains("Multiple instructions on a single line are not allowed"));
+        }
+
+        @Test
+        void rejectsExtraCommandAfterLabeledInstructionOnOneLine() {
+                RuntimeException exception = assertThrows(
+                                RuntimeException.class,
+                                () -> parse("start: HALT RIGHT"));
+
+                assertTrue(exception.getMessage().contains("Multiple instructions on a single line are not allowed"));
         }
 
         @Test
