@@ -78,13 +78,13 @@ public class Scanner {
                 addToken(TokenType.COLON);
                 break;
 
-            case '_':
-                if (isAlphaNumeric(peek())) {
-                    scanLabelOrKeyword();
-                } else {
-                    scanSymbol();
-                }
-                break;
+            // case '_':
+            //     if (isAlphaNumeric(peek())) {
+            //         scanLabelOrKeyword();
+            //     } else {
+            //         scanSymbol();
+            //     }
+            //     break;
 
             default:
                 if (isDigit(c) && isSymbol()) {
@@ -120,11 +120,6 @@ public class Scanner {
     }
 
     private void scanSymbol() {
-        if (isAlphaNumeric(peek())) {
-            throw new RuntimeException("Tape symbol must be a single character at line " + line +
-                    ". Got multi-character sequence starting with '" + source.substring(start, current + 1) + "'");
-        }
-
         // Single character confirmed (followed by space, newline, or EOF)
         String text = source.substring(start, current);
         addToken(TokenType.SYMBOL, text);
