@@ -39,6 +39,10 @@ public class Parser {
         }
         }
 
+        if (statements.isEmpty()) {
+            throw new RuntimeException("Program is empty");
+        }
+
         // check for duplicate labels
         Map<String, Integer> labelTable = new HashMap<>();
         Set<String> declaredLabels = new HashSet<>();
