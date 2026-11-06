@@ -78,12 +78,13 @@ class ScannerFunctionTest {
     void scanTokenScansColonAndBlank() throws Exception {
         Scanner scanner = new Scanner(":_");
 
-        invoke(scanner, "scanToken");
-        invoke(scanner, "scanToken");
+        InvocationTargetException exception = assertThrows(
+                InvocationTargetException.class,
+                () -> invoke(scanner, "scanToken"));
 
-        List<Token> tokens = getTokens(scanner);
-        assertEquals(TokenType.COLON, tokens.get(0).getType());
-        assertEquals(TokenType.LABEL, tokens.get(1).getType());
+        assertEquals(
+                "Unexpected character ':' at line 1",
+                exception.getCause().getMessage());
     }
 
     @Test
@@ -123,17 +124,18 @@ class ScannerFunctionTest {
 
     // @Test
     // void scanSymbolRejectsMultiCharacterSymbol() throws Exception {
-    //     Scanner scanner = new Scanner("12");
+    // Scanner scanner = new Scanner("12");
 
-    //     invoke(scanner, "advance");
+    // invoke(scanner, "advance");
 
-    //     InvocationTargetException exception = assertThrows(
-    //             InvocationTargetException.class,
-    //             () -> invoke(scanner, "scanSymbol"));
+    // InvocationTargetException exception = assertThrows(
+    // InvocationTargetException.class,
+    // () -> invoke(scanner, "scanSymbol"));
 
-    //     assertEquals(
-    //             "Tape symbol must be a single character at line 1. Got multi-character sequence starting with '12'",
-    //             exception.getCause().getMessage());
+    // assertEquals(
+    // "Tape symbol must be a single character at line 1. Got multi-character
+    // sequence starting with '12'",
+    // exception.getCause().getMessage());
     // }
 
     @Test

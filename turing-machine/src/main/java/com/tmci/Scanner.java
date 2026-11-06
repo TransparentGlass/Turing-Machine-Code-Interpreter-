@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 import static com.tmci.TokenType.*;
 
 public class Scanner {
@@ -75,22 +74,18 @@ public class Scanner {
                 break;
 
             case ':':
-                addToken(TokenType.COLON);
-                break;
+                if (isAlphaNumeric(peek())) {
+                    throw new RuntimeException("Unexpected character '" + c + "' at line " + (line));
+                } else {
+                    addToken(TokenType.COLON);
+                }
 
-            // case '_':
-            //     if (isAlphaNumeric(peek())) {
-            //         scanLabelOrKeyword();
-            //     } else {
-            //         scanSymbol();
-            //     }
-            //     break;
+                break;
 
             default:
                 if (isDigit(c) && isSymbol()) {
-                    scanSymbol();   
-                }
-                else if (isAlphaNumeric(c)) {
+                    scanSymbol();
+                } else if (isAlphaNumeric(c)) {
                     scanLabelOrKeyword();
                 } else {
                     throw new RuntimeException("Unexpected character '" + c + "' at line " + (line));
@@ -142,8 +137,8 @@ public class Scanner {
         return current >= source.length();
     }
 
-    private boolean isSymbol(){
-        //if the next char is a space, return true
+    private boolean isSymbol() {
+        // if the next char is a space, return true
         return !isAlphaNumeric(peek());
     }
 }
